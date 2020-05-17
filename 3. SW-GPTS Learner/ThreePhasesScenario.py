@@ -3,7 +3,7 @@ import numpy as np
 
 class ThreePhasesScenario:
 
-    def __init__(self, daily_budgets, sigma, phase_duration):
+    def __init__(self, daily_budgets, sigma, phase_1, phase_2, phase_3, phase_duration):
         self.daily_budgets = daily_budgets
         
         self.sigma = sigma
@@ -12,22 +12,17 @@ class ThreePhasesScenario:
         self.phase = 1
         self.t = 0
 
-    def phase1(self, x):
-        return 100 * (1 - np.exp(-5.0*x**2))
-
-    def phase2(self, x):
-        return 100 * (1 - np.exp(-6.0*x))
-
-    def phase3(self, x):
-        return 80 * (1 - np.exp(-5.0*x))
+        self.phase_1 = phase_1
+        self.phase_2 = phase_2
+        self.phase_3 = phase_3
 
     def fun(self, x):
         if self.phase == 1:
-            return self.phase1(x)
+            return self.phase_1(x)
         elif self.phase == 2:
-            return self.phase2(x)
+            return self.phase_2(x)
         elif self.phase == 3:
-            return self.phase3(x)
+            return self.phase_3(x)
 
     def round(self, daily_budget):
         

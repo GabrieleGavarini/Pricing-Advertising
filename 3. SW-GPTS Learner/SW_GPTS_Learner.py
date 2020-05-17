@@ -7,11 +7,11 @@ from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 
 class SW_GPTS_Learner:
     
-    def __init__(self, n_arms, arms, window_length=0):
+    def __init__(self, n_arms, arms, sigma=10, window_length=0):
         self.arms = arms
         self.n_arms = n_arms
         self.means = np.zeros(self.n_arms)
-        self.sigmas = np.ones(self.n_arms)*10
+        self.sigmas = np.ones(self.n_arms)*sigma
         
         self.pulled_arms = np.array([])
         self.collected_rewards = np.array([])
@@ -32,11 +32,11 @@ class SW_GPTS_Learner:
 
         Parameters:
         arm_index (int): the index of the arm that has been pulled
-        reward (float): the reward recieved by pulling the arm
+        reward (float): the reward received by pulling the arm
         """
         self.pulled_arms = np.append(self.pulled_arms, self.arms[arm_index])
         self.collected_rewards = np.append(self.collected_rewards, reward)
-        
+
         if len(self.pulled_arms) > self.window_length:
             self.pulled_arms = self.pulled_arms[-self.window_length:]
             self.collected_rewards = self.collected_rewards[-self.window_length:]

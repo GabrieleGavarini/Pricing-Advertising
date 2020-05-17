@@ -4,9 +4,14 @@ from SW_GPTS_Learner import *
 
 class Subcampaign:
 
-    def __init__(self, daily_budgets, sigma, phase_duration, window_length):
-        self.scenario = ThreePhasesScenario(daily_budgets, sigma, phase_duration)
-        self.learner = SW_GPTS_Learner(len(daily_budgets), daily_budgets, window_length)
+    def __init__(self, daily_budgets, sigma, phase_duration, phase_1, phase_2, phase_3, window_length):
+        self.scenario = ThreePhasesScenario(daily_budgets,
+                                            sigma,
+                                            phase_1=phase_1,
+                                            phase_2=phase_2,
+                                            phase_3=phase_3,
+                                            phase_duration=phase_duration)
+        self.learner = SW_GPTS_Learner(len(daily_budgets), daily_budgets, window_length=window_length)
         self.daily_budgets = daily_budgets
 
         self.pulled_arms_index = np.array([], dtype=int)
@@ -23,13 +28,15 @@ class Subcampaign:
     def play_round(self, optimal_arm_index):
         """
         Play the optimal arm and sample the result from the true function
-        :parameter:
+        :param
         (int) optimal_arm_index: the index of the optimal arm to play
         """
         reward = self.scenario.round(self.daily_budgets[optimal_arm_index])
 
         self.pulled_arms_index = np.append(self.pulled_arms_index, optimal_arm_index)
         self.collected_rewards = np.append(self.collected_rewards, reward)
+
+        return reward
 
     def update(self):
         """
