@@ -42,18 +42,21 @@ class Optimizer:
                     # How much value is left to allocate
                     value_to_allocate = self.daily_budgets[budget_index] - self.daily_budgets[previous_optimal_index]
 
-                    # Find the index of the new element which budget is equal to the amount of budget that still needs
-                    # to be allocated
-                    # sampled_optimal_index = self.daily_budgets.index(value_to_allocate)
+                    # Find the index of the largest_budget that can be allocated given a portion of the budget_cap
+                    # assigned to the previous optimal coalition
                     sampled_optimal_index = 0
-                    if len(np.where(self.daily_budgets == value_to_allocate)[0]) > 0:
-                        sampled_optimal_index = np.where(self.daily_budgets == value_to_allocate)[0][0]
-                    else:
-                        print('Error allocating value: ', value_to_allocate)
+                    for sampled_optimal_index in range(0, len(self.daily_budgets)):
+                        # This is possible since the element are ordered
+                        if self.daily_budgets[sampled_optimal_index] - value_to_allocate >= 0:
+                            break
+
                     sampled_optimal_value = sub_sampled_values[sampled_optimal_index]
 
+                    # If a better maximum is found
                     if sampled_optimal_value + previous_optimal_value > new_optimal_maximum:
+                        # Update the temporary optimal maximum
                         new_optimal_maximum = sampled_optimal_value + previous_optimal_value
+
                         # Update the selected budget by coping the assignment for the optimal solution of the previous
                         # optimal solution and modifying the selection for the current campaign
                         assignment_table[subcampaign_index + 1][budget_index] = assignment_table[subcampaign_index][previous_optimal_index][:]

@@ -29,6 +29,8 @@ class ThreePhasesScenario:
         self.t += 1
         if self.t > self.phase_duration * self.phase:
             self.phase += 1
-            
+
+        self.phase = min(3, self.phase)
+
         mean = self.fun(self.daily_budgets[daily_budget_index])
         return max(0, np.random.normal(mean, self.sigma))

@@ -1,16 +1,9 @@
-from ThreePhasesScenario import *
 from SW_GPTS_Learner import *
 
 
 class Subcampaign:
 
-    def __init__(self, daily_budgets, sigma, phase_duration, phase_1, phase_2, phase_3, window_length):
-        self.scenario = ThreePhasesScenario(daily_budgets,
-                                            sigma,
-                                            phase_1=phase_1,
-                                            phase_2=phase_2,
-                                            phase_3=phase_3,
-                                            phase_duration=phase_duration)
+    def __init__(self, daily_budgets, window_length):
         self.learner = SW_GPTS_Learner(len(daily_budgets), daily_budgets, window_length=window_length)
         self.daily_budgets = daily_budgets
 
@@ -25,25 +18,26 @@ class Subcampaign:
         """
         return self.learner.sample_values()
 
-    def play_round(self, optimal_arm_index):
+    def play_round(self, optimal_arm_index, reward):
         """
         Play the optimal arm and sample the result from the true function
         :param
         (int) optimal_arm_index: the index of the optimal arm to play
         """
-        reward = self.scenario.round(self.daily_budgets[optimal_arm_index])
 
+    def update(self, optimal_arm_index, reward):
+        """
+        Update the parameters of the model and the gaussian process based on an external sampling
+        of the real function
+        :param optimal_arm_index: (int) the index of the arm that has been pulled
+        :param reward: (float) the reward received by pulling the arm
+        :return:
+        """
         self.pulled_arms_index = np.append(self.pulled_arms_index, optimal_arm_index)
         self.collected_rewards = np.append(self.collected_rewards, reward)
 
-        return reward
-
-    def update(self):
-        """
-        Update the learner Gaussian Process based on the results of the last played arm
-        """
-        self.learner.update(self.pulled_arms_index[-1], self.collected_rewards[-1])
+        self.learner.update(optimal_arm_index, reward)
 
 # TESTING PURPOSE ONLY
-    def plot(self, ax):
-        self.learner.plot(self.scenario.fun, ax)
+    def plot(self, ax, fun):
+        self.learner.plot(fun, ax)
