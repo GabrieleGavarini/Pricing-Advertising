@@ -7,9 +7,9 @@ from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 
 class SW_GPTS_Learner:
     
-    def __init__(self, n_arms, arms, sigma=10, window_length=0):
+    def __init__(self, arms, sigma=10, window_length=0):
         self.arms = arms
-        self.n_arms = n_arms
+        self.n_arms = len(arms)
         self.means = np.zeros(self.n_arms)
         self.sigmas = np.ones(self.n_arms)*sigma
         
@@ -25,6 +25,15 @@ class SW_GPTS_Learner:
                                            alpha=alpha**2,
                                            normalize_y=True,
                                            n_restarts_optimizer=10)
+
+    def sample_values(self):
+        """
+        Sample the value of all the arms from the learner Gaussian Process
+        :return:
+        (numpy.array) An array containing the sampled values
+        """
+        sampled_values = np.random.normal(self.means, self.sigmas)
+        return sampled_values
 
     def update_observations(self, arm_index, reward):
         """
@@ -73,18 +82,9 @@ class SW_GPTS_Learner:
         """
         sampled_values = np.random.normal(self.means, self.sigmas)
         return np.argmax(sampled_values)
-
-    def sample_values(self):
-        """
-        Sample the value of all the arms from the learner Gaussian Process
-        :return:
-        (numpy.array) An array containing the sampled values
-        """
-        sampled_values = np.random.normal(self.means, self.sigmas)
-        return sampled_values
     
     # FOR TESTING PURPOSES
-    def plot(self, function, ax):
+    def plot(self, ax, function):
         ax.plot(self.arms, function(self.arms))
         
         ax.plot(self.pulled_arms, self.collected_rewards, 'ro')

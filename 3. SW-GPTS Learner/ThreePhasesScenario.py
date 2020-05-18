@@ -24,11 +24,11 @@ class ThreePhasesScenario:
         elif self.phase == 3:
             return self.phase_3(x)
 
-    def round(self, daily_budget):
+    def play_round(self, daily_budget_index):
         
         self.t += 1
         if self.t > self.phase_duration * self.phase:
             self.phase += 1
             
-        mean = self.fun(daily_budget)
-        return np.random.normal(mean, self.sigma)
+        mean = self.fun(self.daily_budgets[daily_budget_index])
+        return max(0, np.random.normal(mean, self.sigma))
