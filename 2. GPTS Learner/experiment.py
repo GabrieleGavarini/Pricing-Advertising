@@ -1,5 +1,5 @@
 from SW_GPTS_Learner import *
-from ThreePhasesScenario import *
+from Scenario import *
 from Optimizer import *
 
 from tqdm import tqdm
@@ -8,19 +8,13 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-def phase_1(x): return 100 * (1 - np.exp(-5.0 * x ** 2))
+def fun_1(x): return 100 * (1 - np.exp(-5.0 * x ** 2))
 
 
-def phase_2(x): return 800 * (1 - np.exp(-6.0*x))
+def fun_2(x): return 800 * (1 - np.exp(-6.0*x))
 
 
-def phase_3(x): return 80 * (1 - np.exp(-5.0*x))
-
-
-def phase_4(x): return 90 * (1 - np.exp(-7.0*x))
-
-
-def phase_5(x): return 500 * (1 - np.exp(-5.0*x))
+def fun_3(x): return 80 * (1 - np.exp(-5.0*x))
 
 
 number_of_experiments = 10
@@ -31,45 +25,29 @@ daily_budgets = np.linspace(0, budget_cap, number_of_budgets).astype(int)
 normalized_daily_budgets = daily_budgets/budget_cap
 sigma = 5
 
-time_horizon = 150
-phase_duration = int(time_horizon / 3)
-
-# See slide 67 1-09
-window_coefficient = 1
-window_length = int(window_coefficient * math.sqrt(time_horizon))
+time_horizon = 50
 
 regret = []
 for e in range(0, number_of_experiments):
     print('Starting experiment', e)
 
-    scenarios = [ThreePhasesScenario(daily_budgets=normalized_daily_budgets,
-                                     sigma=sigma,
-                                     phase_1=phase_1,
-                                     phase_2=phase_2,
-                                     phase_3=phase_5,
-                                     phase_duration=phase_duration),
-                 ThreePhasesScenario(daily_budgets=normalized_daily_budgets,
-                                     sigma=sigma,
-                                     phase_1=phase_2,
-                                     phase_2=phase_3,
-                                     phase_3=phase_4,
-                                     phase_duration=phase_duration),
-                 ThreePhasesScenario(daily_budgets=normalized_daily_budgets,
-                                     sigma=sigma,
-                                     phase_1=phase_5,
-                                     phase_2=phase_4,
-                                     phase_3=phase_3,
-                                     phase_duration=phase_duration)]
+    scenarios = [Scenario(daily_budgets=normalized_daily_budgets,
+                          sigma=sigma,
+                          fun=fun_1),
+                 Scenario(daily_budgets=normalized_daily_budgets,
+                          sigma=sigma,
+                          fun=fun_2),
+                 Scenario(daily_budgets=normalized_daily_budgets,
+                          sigma=sigma,
+                          fun=fun_3)
+                 ]
 
     subcampaigns = [SW_GPTS_Learner(arms=normalized_daily_budgets,
-                                    sigma=sigma,
-                                    window_length=window_length),
+                                    sigma=sigma),
                     SW_GPTS_Learner(arms=normalized_daily_budgets,
-                                    sigma=sigma,
-                                    window_length=window_length),
+                                    sigma=sigma),
                     SW_GPTS_Learner(arms=normalized_daily_budgets,
-                                    sigma=sigma,
-                                    window_length=window_length)]
+                                    sigma=sigma)]
 
     optimizer = Optimizer(daily_budgets, number_of_budgets)
     ideal_optimizer = Optimizer(daily_budgets, number_of_budgets)
@@ -113,9 +91,6 @@ for e in range(0, number_of_experiments):
             # Compute the ideal optimal result
             ideal_result += scenarios[sub_index].mean[ideal_arms[sub_index]]
 
-            # Advance the time of the scenario and eventually trigger a new phase
-            scenarios[sub_index].advance_time()
-
         optimal_rewards_per_round[t] = optimal_result
         ideal_rewards_per_round[t] = ideal_result
         # print("[", t, "]Optimal solution:", optimal_arms, " (", ideal_arms, ")", "with a result of: ", round(optimal_result, 2), " (", round(ideal_result, 2), ").")
@@ -123,7 +98,6 @@ for e in range(0, number_of_experiments):
     regret.append(ideal_rewards_per_round - optimal_rewards_per_round)
 
 # PLOTTING THE REGRET
-
 fig = plt.figure(figsize=(12,9))
 ax = fig.add_subplot()
 
@@ -138,21 +112,17 @@ ax.set_xlabel("Day", fontsize=14)
 ax.set_ylabel("Regret", fontsize=14)
 
 ax.tick_params(length=0)
-ax.set_yticks(np.linspace(0, 15000, 11))
-ax.set_yticklabels(np.linspace(0, 15000, 11).astype(np.int64), fontsize=12, alpha=0.7)
+ax.set_yticks(np.linspace(0, 2500, 11))
+ax.set_yticklabels(np.linspace(0, 2500, 11).astype(np.int64), fontsize=12, alpha=0.7)
 
 ax.spines['right'].set_alpha(0)
 ax.spines['left'].set_alpha(0.3)
 ax.spines['top'].set_alpha(0)
 ax.spines['bottom'].set_alpha(0.3)
 
-ax.axvline(phase_duration*1, color='r')
-ax.axvline(phase_duration*2, color='r')
-ax.axvline(phase_duration*3, color='r')
-
 ax.plot(np.cumsum(np.mean(regret, axis=0)), linewidth='2')
 ax.set_xlim([0, time_horizon])
 
 plt.show()
 
-plt.savefig('chapter3_regret.png')
+plt.savefig('chapter2_regret.png')

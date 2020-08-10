@@ -1,9 +1,10 @@
 import numpy as np
+from Scenario import *
 
-
-class ThreePhasesScenario:
+class ThreePhasesScenario(Scenario):
 
     def __init__(self, daily_budgets, sigma, phase_1, phase_2, phase_3, phase_duration):
+
         self.phase_duration = phase_duration
         self.phase = 1
         self.t = 0
@@ -12,10 +13,7 @@ class ThreePhasesScenario:
         self.phase_2 = phase_2
         self.phase_3 = phase_3
 
-        self.daily_budgets = daily_budgets
-
-        self.mean = self.fun(self.daily_budgets)
-        self.sigma = sigma
+        super().__init__(daily_budgets, sigma, self.fun)
 
     def fun(self, x):
         if self.phase == 1:
@@ -35,7 +33,3 @@ class ThreePhasesScenario:
         self.phase = min(3, self.phase)
 
         self.mean = self.fun(self.daily_budgets)
-
-    def play_round(self, daily_budget_index):
-        mean = self.fun(self.daily_budgets[daily_budget_index])
-        return max(0, np.random.normal(mean, self.sigma))
