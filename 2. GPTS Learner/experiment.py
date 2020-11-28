@@ -29,7 +29,9 @@ time_horizon = 50
 
 regret = []
 for e in range(0, number_of_experiments):
-    print('Starting experiment', e)
+
+    print('\n')
+    print('Starting experiment', e + 1)
 
     scenarios = [Scenario(daily_budgets=normalized_daily_budgets,
                           sigma=sigma,
@@ -98,6 +100,9 @@ for e in range(0, number_of_experiments):
     regret.append(ideal_rewards_per_round - optimal_rewards_per_round)
 
 # PLOTTING THE REGRET
+y = np.cumsum(np.mean(regret, axis=0))
+max_y = np.max(y)
+
 fig = plt.figure(figsize=(12,9))
 ax = fig.add_subplot()
 
@@ -112,17 +117,17 @@ ax.set_xlabel("Day", fontsize=14)
 ax.set_ylabel("Regret", fontsize=14)
 
 ax.tick_params(length=0)
-ax.set_yticks(np.linspace(0, 2500, 11))
-ax.set_yticklabels(np.linspace(0, 2500, 11).astype(np.int64), fontsize=12, alpha=0.7)
+ax.set_yticks(np.linspace(0, max_y * 1.5, 11))
+ax.set_yticklabels(np.linspace(0, max_y * 1.5, 11).astype(np.int64), fontsize=12, alpha=0.7)
 
 ax.spines['right'].set_alpha(0)
 ax.spines['left'].set_alpha(0.3)
 ax.spines['top'].set_alpha(0)
 ax.spines['bottom'].set_alpha(0.3)
 
-ax.plot(np.cumsum(np.mean(regret, axis=0)), linewidth='2')
+ax.plot(y, linewidth='2')
 ax.set_xlim([0, time_horizon])
 
-plt.show()
-
 plt.savefig('chapter2_regret.png')
+
+plt.show()

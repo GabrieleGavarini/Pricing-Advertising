@@ -23,7 +23,7 @@ class SW_GPTS_Learner:
         
         self.gp = GaussianProcessRegressor(kernel=kernel,
                                            alpha=alpha**2,
-                                           normalize_y=True,
+                                           normalize_y=False,
                                            n_restarts_optimizer=10)
 
     def sample_values(self):

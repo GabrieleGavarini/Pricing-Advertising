@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 from tqdm import tqdm
 import pandas as pd
 
+
 def compute_reward(extended_reward):
     n = 0
     d = 0
@@ -12,6 +13,7 @@ def compute_reward(extended_reward):
         n += r[3]
         d += r[4]
     return n/d
+
 
 scenario = PricingScenario()
 scenario.plot_scenario_distribution()

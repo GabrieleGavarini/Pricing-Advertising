@@ -40,7 +40,9 @@ window_length = int(window_coefficient * math.sqrt(time_horizon))
 
 regret = []
 for e in range(0, number_of_experiments):
-    print('Starting experiment', e)
+
+    print('\n')
+    print('Starting experiment', e + 1)
 
     scenarios = [ThreePhasesScenario(daily_budgets=normalized_daily_budgets,
                                      sigma=sigma,
@@ -153,6 +155,6 @@ ax.axvline(phase_duration*3, color='r')
 ax.plot(np.cumsum(np.mean(regret, axis=0)), linewidth='2')
 ax.set_xlim([0, time_horizon])
 
-plt.show()
-
 plt.savefig('chapter3_regret.png')
+
+plt.show()
