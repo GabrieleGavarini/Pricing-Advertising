@@ -32,7 +32,15 @@ class Optimizer:
             # values to select the optimal play
             for budget_index in range(0, self.number_of_budgets):
 
-                new_optimal_maximum = 0
+                if budget_index == 0:
+                    new_optimal_maximum = sub_sampled_values[0]
+                    new_optimal_index = 0
+                else:
+                    new_optimal_maximum = max(sub_sampled_values[:min(budget_index, len(sub_sampled_values) - 1) + 1])
+                    new_optimal_index = np.argmax(sub_sampled_values[:min(budget_index, len(sub_sampled_values) - 1)])
+
+                incremental_table[subcampaign_index + 1][budget_index] = new_optimal_maximum
+                assignment_table[subcampaign_index + 1][budget_index][subcampaign_index + 1] = new_optimal_index + 1
 
                 for previous_optimal_index in range(0, budget_index + 1):
 
@@ -42,15 +50,16 @@ class Optimizer:
                     # How much value is left to allocate
                     value_to_allocate = self.daily_budgets[budget_index] - self.daily_budgets[previous_optimal_index]
 
-                    # Find the index of the largest_budget that can be allocated given a portion of the budget_cap
+                    # Find the index of the largest budget that can be allocated given a portion of the budget cap
                     # assigned to the previous optimal coalition
                     sampled_optimal_index = 0
-                    for sampled_optimal_index in range(0, len(self.daily_budgets)):
-                        # This is possible since the element are ordered
-                        if self.daily_budgets[sampled_optimal_index] - value_to_allocate >= 0:
+                    sampled_optimal_value = 0
+                    for i in range(0, len(sub_sampled_values)):
+                        if sub_sampled_values[i] > sampled_optimal_value:
+                            sampled_optimal_value = sub_sampled_values[i]
+                            sampled_optimal_index = i
+                        if self.daily_budgets[i] >= value_to_allocate:
                             break
-
-                    sampled_optimal_value = sub_sampled_values[sampled_optimal_index]
 
                     # If a better maximum is found
                     if sampled_optimal_value + previous_optimal_value > new_optimal_maximum:
@@ -59,10 +68,9 @@ class Optimizer:
 
                         # Update the selected budget by coping the assignment for the optimal solution of the previous
                         # optimal solution and modifying the selection for the current campaign
-                        assignment_table[subcampaign_index + 1][budget_index] = assignment_table[subcampaign_index][previous_optimal_index][:]
+                        assignment_table[subcampaign_index + 1][budget_index] = assignment_table[subcampaign_index][previous_optimal_index]
                         assignment_table[subcampaign_index + 1][budget_index][subcampaign_index + 1] = sampled_optimal_index
 
                 incremental_table[subcampaign_index + 1][budget_index] = new_optimal_maximum
 
-        index_of_optimum = np.unravel_index(incremental_table.argmax(), incremental_table.shape)
-        return assignment_table[index_of_optimum][1:].astype(int)
+        return assignment_table[-1][-1][1:].astype(int)

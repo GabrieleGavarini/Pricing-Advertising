@@ -12,15 +12,14 @@ class SW_GPTS_Learner:
         self.n_arms = len(arms)
         self.means = np.zeros(self.n_arms)
         self.sigmas = np.ones(self.n_arms)*sigma
-        
+
         self.pulled_arms = np.array([])
         self.collected_rewards = np.array([])
-        
+
         self.window_length = window_length
-        
+
         alpha = 10.0
         kernel = C(1.0, (1e-5, 1e5)) * RBF(1.0, (1e-5, 1e5))
-        
         self.gp = GaussianProcessRegressor(kernel=kernel,
                                            alpha=alpha**2,
                                            normalize_y=False,
