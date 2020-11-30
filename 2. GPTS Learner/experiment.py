@@ -11,8 +11,9 @@ from matplotlib import pyplot as plt
 number_of_experiments = 10
 
 # The budget cap and the possible daily budget that can be set
-budget_cap = 25000
-daily_budgets = np.linspace(5000, budget_cap, endpoint=True, num=41).astype(int)
+budget_cap = 19000
+daily_budgets = np.linspace(5000, budget_cap, endpoint=True, num=29).astype(int)
+print(daily_budgets)
 
 # The number of possible budgets that can be allocated to each subcampaign
 number_of_budgets = 11
@@ -54,7 +55,7 @@ for e in range(0, number_of_experiments):
         # Compute the real value of the tru function
         real_values = []
         for scenario in scenarios:
-            real_values.append(scenario.y)
+            real_values.append(scenario.y[:number_of_budgets])
 
         # FIND OPTIMAL ARMS
         # Find the best combination of arms to play at time t based on the sampling of the Gaussian Processes
@@ -81,8 +82,8 @@ for e in range(0, number_of_experiments):
 
         optimal_rewards_per_round[t] = optimal_result
         ideal_rewards_per_round[t] = ideal_result
-        print("[", t, "]Optimal solution:", optimal_arms, " (", ideal_arms, ")",
-              "with a result of: ", round(optimal_result, 2), " (", round(ideal_result, 2), ").")
+        # print("[", t, "]Optimal solution:", optimal_arms, " (", ideal_arms, ")",
+        #       "with a result of: ", round(optimal_result, 2), " (", round(ideal_result, 2), ").")
 
     regret.append(ideal_rewards_per_round - optimal_rewards_per_round)
 

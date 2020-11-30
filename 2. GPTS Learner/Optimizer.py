@@ -40,7 +40,7 @@ class Optimizer:
                     new_optimal_index = np.argmax(sub_sampled_values[:min(budget_index, len(sub_sampled_values) - 1)])
 
                 incremental_table[subcampaign_index + 1][budget_index] = new_optimal_maximum
-                assignment_table[subcampaign_index + 1][budget_index][subcampaign_index + 1] = new_optimal_index
+                assignment_table[subcampaign_index + 1][budget_index][subcampaign_index + 1] = new_optimal_index + 1
 
                 for previous_optimal_index in range(0, budget_index + 1):
 
@@ -68,12 +68,9 @@ class Optimizer:
 
                         # Update the selected budget by coping the assignment for the optimal solution of the previous
                         # optimal solution and modifying the selection for the current campaign
-                        assignment_table[subcampaign_index + 1][budget_index] = assignment_table[subcampaign_index][previous_optimal_index + 1]
+                        assignment_table[subcampaign_index + 1][budget_index] = assignment_table[subcampaign_index][previous_optimal_index]
                         assignment_table[subcampaign_index + 1][budget_index][subcampaign_index + 1] = sampled_optimal_index
 
                 incremental_table[subcampaign_index + 1][budget_index] = new_optimal_maximum
-
-        # print(incremental_table)
-        # print(assignment_table[-1])
 
         return assignment_table[-1][-1][1:].astype(int)
