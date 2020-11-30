@@ -7,8 +7,8 @@ import math
 import numpy as np
 from matplotlib import pyplot as plt
 
-number_of_experiments = 10
-window_coefficients = [0, 1, 2]
+number_of_experiments = 5
+window_coefficients = [1, 2, 3, 0]
 
 # The budget cap and the possible daily budget that can be set
 budget_cap = 27000
@@ -22,9 +22,9 @@ phase_duration = int(time_horizon / 3)
 
 regret = []
 
-fig, ax = plt.subplots(1, 3, figsize=(36, 9))
+fig, ax = plt.subplots(2, 2, figsize=(24, 18))
 
-for i in range(0, 3):
+for i in range(0, len(window_coefficients)):
 
     # See slide 67 1-09
     window_coefficient = window_coefficients[i]
@@ -106,32 +106,32 @@ for i in range(0, 3):
 
     # PLOTTING THE REGRET
 
-    ax[i].set_title("Regret per day", fontsize=17, ha='center')
+    ax[int(i/2), i % 2].set_title("Regret for c = " + str(window_coefficient), fontsize=17, ha='center')
 
-    ax[i].grid(axis='x', alpha=0.3, linestyle='--')
+    ax[int(i/2), i % 2].grid(axis='x', alpha=0.3, linestyle='--')
 
-    ax[i].set_ylim(bottom=0)
-    ax[i].set_xlim(left=0)
+    ax[int(i/2), i % 2].set_ylim(bottom=0)
+    ax[int(i/2), i % 2].set_xlim(left=0)
 
-    ax[i].set_xlabel("Day", fontsize=14)
-    ax[i].set_ylabel("Regret", fontsize=14)
+    ax[int(i/2), i % 2].set_xlabel("Day", fontsize=14)
+    ax[int(i/2), i % 2].set_ylabel("Regret", fontsize=14)
 
-    ax[i].tick_params(length=0)
-    ax[i].set_yticks(np.linspace(0, 30000, 11))
-    ax[i].set_yticklabels(np.linspace(0, 30000, 11).astype(np.int64), fontsize=12, alpha=0.7)
+    ax[int(i/2), i % 2].tick_params(length=0)
+    ax[int(i/2), i % 2].set_yticks(np.linspace(0, 30000, 11))
+    ax[int(i/2), i % 2].set_yticklabels(np.linspace(0, 30000, 11).astype(np.int64), fontsize=12, alpha=0.7)
 
-    ax[i].spines['right'].set_alpha(0)
-    ax[i].spines['left'].set_alpha(0.3)
-    ax[i].spines['top'].set_alpha(0)
-    ax[i].spines['bottom'].set_alpha(0.3)
+    ax[int(i/2), i % 2].spines['right'].set_alpha(0)
+    ax[int(i/2), i % 2].spines['left'].set_alpha(0.3)
+    ax[int(i/2), i % 2].spines['top'].set_alpha(0)
+    ax[int(i/2), i % 2].spines['bottom'].set_alpha(0.3)
 
-    ax[i].axvline(phase_duration*1, color='lightcoral')
-    ax[i].axvline(phase_duration*2, color='lightcoral')
+    ax[int(i/2), i % 2].axvline(phase_duration*1, color='lightcoral')
+    ax[int(i/2), i % 2].axvline(phase_duration*2, color='lightcoral')
 
-    ax[i].plot(np.cumsum(np.mean(regret, axis=0)), linewidth='2', label='c=' + str(window_coefficient))
-    ax[i].set_xlim([0, time_horizon])
+    ax[int(i/2), i % 2].plot(np.cumsum(np.mean(regret, axis=0)), linewidth='2')
+    ax[int(i/2), i % 2].set_xlim([0, time_horizon])
 
-    ax[i].legend(frameon=False)
+    # ax[int(i/2), i % 2].legend(frameon=False)
 
 fig.savefig('chapter3_regret.png')
 
