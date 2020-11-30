@@ -14,10 +14,6 @@ class Scenario:
         count_df = self.df.groupby(['Ad_campaign', 'Budget']).count()
         self.y = count_df.loc[campaign].price.values
 
-        self.y = np.append(0, self.y)
-        self.y = np.append(0, self.y)
-        self.y = np.append(0, self.y)
-
         self.var = var
 
     def play_round(self, daily_budget_index):

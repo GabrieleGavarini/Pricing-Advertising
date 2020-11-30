@@ -13,7 +13,6 @@ number_of_experiments = 10
 # The budget cap and the possible daily budget that can be set
 budget_cap = 19000
 daily_budgets = np.linspace(5000, budget_cap, endpoint=True, num=29).astype(int)
-print(daily_budgets)
 
 # The number of possible budgets that can be allocated to each subcampaign
 number_of_budgets = 11
