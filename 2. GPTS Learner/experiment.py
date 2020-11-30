@@ -3,27 +3,19 @@ from Scenario import *
 from Optimizer import *
 
 from tqdm import tqdm
-import math
+
 import numpy as np
 from matplotlib import pyplot as plt
 
 
-def fun_1(x): return 100 * (1 - np.exp(-5.0 * x ** 2))
-
-
-def fun_2(x): return 800 * (1 - np.exp(-6.0*x))
-
-
-def fun_3(x): return 80 * (1 - np.exp(-5.0*x))
-
-
 number_of_experiments = 10
 
-budget_cap = 10000
-number_of_budgets = 100
-daily_budgets = np.linspace(0, budget_cap, number_of_budgets).astype(int)
-normalized_daily_budgets = daily_budgets/budget_cap
-sigma = 5
+# The budget cap and the possible daily budget that can be set
+budget_cap = 25000
+daily_budgets = np.linspace(5000, budget_cap, endpoint=True, num=41).astype(int)
+
+# The number of possible budgets that can be allocated to each subcampaign
+number_of_budgets = 11
 
 time_horizon = 50
 
@@ -33,26 +25,20 @@ for e in range(0, number_of_experiments):
     print('\n')
     print('Starting experiment', e + 1)
 
-    scenarios = [Scenario(daily_budgets=normalized_daily_budgets,
-                          sigma=sigma,
-                          fun=fun_1),
-                 Scenario(daily_budgets=normalized_daily_budgets,
-                          sigma=sigma,
-                          fun=fun_2),
-                 Scenario(daily_budgets=normalized_daily_budgets,
-                          sigma=sigma,
-                          fun=fun_3)
+    scenarios = [Scenario(daily_budgets=daily_budgets,
+                          campaign=0),
+                 Scenario(daily_budgets=daily_budgets,
+                          campaign=1),
+                 Scenario(daily_budgets=daily_budgets,
+                          campaign=2)
                  ]
 
-    subcampaigns = [SW_GPTS_Learner(arms=normalized_daily_budgets,
-                                    sigma=sigma),
-                    SW_GPTS_Learner(arms=normalized_daily_budgets,
-                                    sigma=sigma),
-                    SW_GPTS_Learner(arms=normalized_daily_budgets,
-                                    sigma=sigma)]
+    subcampaigns = [SW_GPTS_Learner(arms=daily_budgets[:number_of_budgets]),
+                    SW_GPTS_Learner(arms=daily_budgets[:number_of_budgets]),
+                    SW_GPTS_Learner(arms=daily_budgets[:number_of_budgets])]
 
-    optimizer = Optimizer(daily_budgets, number_of_budgets)
-    ideal_optimizer = Optimizer(daily_budgets, number_of_budgets)
+    optimizer = Optimizer(daily_budgets, len(daily_budgets))
+    ideal_optimizer = Optimizer(daily_budgets, len(daily_budgets))
 
     # The optimal and the ideal result obtained by playing the best possible combination of arms known
     optimal_rewards_per_round = np.zeros(time_horizon)
@@ -68,7 +54,7 @@ for e in range(0, number_of_experiments):
         # Compute the real value of the tru function
         real_values = []
         for scenario in scenarios:
-            real_values.append(scenario.mean)
+            real_values.append(scenario.y)
 
         # FIND OPTIMAL ARMS
         # Find the best combination of arms to play at time t based on the sampling of the Gaussian Processes
@@ -91,11 +77,12 @@ for e in range(0, number_of_experiments):
             subcampaigns[sub_index].update(optimal_arms[sub_index], reward)
 
             # Compute the ideal optimal result
-            ideal_result += scenarios[sub_index].mean[ideal_arms[sub_index]]
+            ideal_result += scenarios[sub_index].y[ideal_arms[sub_index]]
 
         optimal_rewards_per_round[t] = optimal_result
         ideal_rewards_per_round[t] = ideal_result
-        # print("[", t, "]Optimal solution:", optimal_arms, " (", ideal_arms, ")", "with a result of: ", round(optimal_result, 2), " (", round(ideal_result, 2), ").")
+        print("[", t, "]Optimal solution:", optimal_arms, " (", ideal_arms, ")",
+              "with a result of: ", round(optimal_result, 2), " (", round(ideal_result, 2), ").")
 
     regret.append(ideal_rewards_per_round - optimal_rewards_per_round)
 
@@ -103,7 +90,7 @@ for e in range(0, number_of_experiments):
 y = np.cumsum(np.mean(regret, axis=0))
 max_y = np.max(y)
 
-fig = plt.figure(figsize=(12,9))
+fig = plt.figure(figsize=(12, 9))
 ax = fig.add_subplot()
 
 ax.set_title("Regret per day", fontsize=17, ha='center')
