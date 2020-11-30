@@ -7,7 +7,7 @@ from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 
 class SW_GPTS_Learner:
     
-    def __init__(self, arms, sigma=10, window_length=0):
+    def __init__(self, arms, sigma=5, window_length=0):
         self.arms = arms
         self.n_arms = len(arms)
         self.means = np.zeros(self.n_arms)
