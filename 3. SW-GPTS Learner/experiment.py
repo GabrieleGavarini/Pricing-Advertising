@@ -36,7 +36,7 @@ daily_budgets = np.linspace(5000, budget_cap, endpoint=True, num=45).astype(int)
 # The number of possible budgets that can be allocated to each subcampaign
 number_of_budgets = 11
 
-time_horizon = 150
+time_horizon = 300
 phase_duration = int(time_horizon / 3)
 
 regret = []
@@ -115,6 +115,7 @@ for i in range(0, len(window_coefficients)):
             #       "with a result of: ", round(optimal_result, 2), " (", round(ideal_result, 2), ").")
 
         regret.append(ideal_rewards_per_round - optimal_rewards_per_round)
+        print("\n", "Regret:", np.cumsum(ideal_rewards_per_round - optimal_rewards_per_round)[-1], "\n")
 
     # PLOTTING THE REGRET
 
@@ -129,8 +130,8 @@ for i in range(0, len(window_coefficients)):
     ax[int(i/2), i % 2].set_ylabel("Regret", fontsize=14)
 
     ax[int(i/2), i % 2].tick_params(length=0)
-    ax[int(i/2), i % 2].set_yticks(np.linspace(0, 50000, 11))
-    ax[int(i/2), i % 2].set_yticklabels(np.linspace(0, 50000, 11).astype(np.int64), fontsize=12, alpha=0.7)
+    ax[int(i/2), i % 2].set_yticks(np.linspace(0, 40000, 11))
+    ax[int(i/2), i % 2].set_yticklabels(np.linspace(0, 40000, 11).astype(np.int64), fontsize=12, alpha=0.7)
 
     ax[int(i/2), i % 2].spines['right'].set_alpha(0)
     ax[int(i/2), i % 2].spines['left'].set_alpha(0.3)
