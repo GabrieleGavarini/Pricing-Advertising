@@ -2,12 +2,12 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
+from sklearn.gaussian_process.kernels import Matern, WhiteKernel, RBF, ConstantKernel as C
 
 
 class SW_GPTS_Learner:
     
-    def __init__(self, arms, sigma=10, window_length=0):
+    def __init__(self, arms, sigma=5, window_length=0):
         self.arms = arms
         self.n_arms = len(arms)
         self.means = np.zeros(self.n_arms)
@@ -18,11 +18,16 @@ class SW_GPTS_Learner:
 
         self.window_length = window_length
 
-        alpha = 10.0
-        kernel = C(1.0, (1e-5, 1e5)) * RBF(1.0, (1e-5, 1e5))
+        alpha = 1.5
+
+        theta = 1
+        l = 1
+
+        kernel = C(theta, (1e-5, 1e5)) * RBF(l, (1e-10, 1e10))
+
         self.gp = GaussianProcessRegressor(kernel=kernel,
-                                           alpha=alpha**2,
-                                           normalize_y=False,
+                                           alpha=alpha ** 2,
+                                           normalize_y=True,
                                            n_restarts_optimizer=10)
 
     def sample_values(self):
@@ -42,7 +47,7 @@ class SW_GPTS_Learner:
         arm_index (int): the index of the arm that has been pulled
         reward (float): the reward received by pulling the arm
         """
-        self.pulled_arms = np.append(self.pulled_arms, self.arms[arm_index])
+        self.pulled_arms = np.append(self.pulled_arms, arm_index)
         self.collected_rewards = np.append(self.collected_rewards, reward)
 
         if len(self.pulled_arms) > self.window_length:
@@ -56,8 +61,11 @@ class SW_GPTS_Learner:
         x = np.atleast_2d(self.pulled_arms).T
         y = self.collected_rewards
 
+        if len(y) == 1:
+            return
+
         self.gp.fit(x, y)
-        self.means, self.sigmas = self.gp.predict(np.atleast_2d(self.arms).T, return_std=True)
+        self.means = self.gp.predict(np.array(list(np.ndindex(len(self.arms)))))
         self.sigmas = np.maximum(self.sigmas, 1e-2)
 
     def update(self, arm_index, reward):

@@ -8,7 +8,25 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-number_of_experiments = 10
+def compute_ideal(scenarios):
+    # Compute the real value of the tru function
+    real_values = []
+    for scenario in scenarios:
+        real_values.append(scenario.y[:number_of_budgets])
+
+    # FIND IDEAL ARMS (to compute regret)
+    # Given the real value of the true function, find the ideal combination of arms
+    arms = ideal_optimizer.optimize(real_values)
+
+    # Compute the ideal optimal result
+    result = 0
+    for index, scenario in enumerate(scenarios):
+        result += scenario.y[arms[index]]
+
+    return result
+
+
+number_of_experiments = 5
 
 # The budget cap and the possible daily budget that can be set
 budget_cap = 27000
@@ -17,7 +35,7 @@ daily_budgets = np.linspace(5000, budget_cap, endpoint=True, num=45).astype(int)
 # The number of possible budgets that can be allocated to each subcampaign
 number_of_budgets = 11
 
-time_horizon = 50
+time_horizon = 100
 
 regret = []
 for e in range(0, number_of_experiments):
@@ -44,6 +62,9 @@ for e in range(0, number_of_experiments):
     optimal_rewards_per_round = np.zeros(time_horizon)
     ideal_rewards_per_round = np.zeros(time_horizon)
 
+    # The ideal arms to pull
+    ideal_result = compute_ideal(scenarios)
+
     for t in tqdm(range(0, time_horizon)):
 
         # Sample the Gaussian Process for each subcampaign
@@ -51,22 +72,11 @@ for e in range(0, number_of_experiments):
         for subcampaign in subcampaigns:
             sampled_values.append(subcampaign.sample_values())
 
-        # Compute the real value of the tru function
-        real_values = []
-        for scenario in scenarios:
-            real_values.append(scenario.y[:number_of_budgets])
-
         # FIND OPTIMAL ARMS
         # Find the best combination of arms to play at time t based on the sampling of the Gaussian Processes
         optimal_arms = optimizer.optimize(sampled_values)
         # The optimal result obtainable at time t by playing the optimal arms
         optimal_result = 0
-
-        # FIND IDEAL ARMS (to compute regret)
-        # Given the real value of the true function, find the ideal combination of arms
-        ideal_arms = ideal_optimizer.optimize(real_values)
-        # The ideal result obtainable at time t
-        ideal_result = 0
 
         for sub_index in range(0, len(subcampaigns)):
             # Sample the true function to get a reward for the played arm
@@ -76,12 +86,10 @@ for e in range(0, number_of_experiments):
             # Update the model based on the result of the played arm
             subcampaigns[sub_index].update(optimal_arms[sub_index], reward)
 
-            # Compute the ideal optimal result
-            ideal_result += scenarios[sub_index].y[ideal_arms[sub_index]]
-
         optimal_rewards_per_round[t] = optimal_result
         ideal_rewards_per_round[t] = ideal_result
-        # print("[", t, "]Optimal solution:", optimal_arms, " (", ideal_arms, ")",
+        # print("\n",
+        #       "[", t, "]Optimal solution:", optimal_arms, " (", ideal_arms, ")",
         #       "with a result of: ", round(optimal_result, 2), " (", round(ideal_result, 2), ").")
 
     regret.append(ideal_rewards_per_round - optimal_rewards_per_round)
