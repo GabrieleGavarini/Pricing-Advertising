@@ -52,7 +52,7 @@ def compute_ideal(_advertising_scenarios, _pricing_scenarios):
     return arms, result
 
 
-number_of_experiments = 1
+number_of_experiments = 5
 
 # The budget cap and the possible daily budget that can be set
 budget_cap = 27000
