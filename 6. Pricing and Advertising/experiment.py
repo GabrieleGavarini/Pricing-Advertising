@@ -10,6 +10,12 @@ from tqdm import tqdm
 import numpy as np
 from matplotlib import pyplot as plt
 
+import logging
+logging.basicConfig(filename='history.log',
+                    format='%(message)s',
+                    filemode='w',
+                    level=logging.INFO)
+
 
 def compute_pricing_reward(extended_reward):
     if extended_reward[2] == 0:
@@ -25,10 +31,10 @@ def compute_ideal(_advertising_scenarios, _pricing_scenarios):
 
     # Compute the ideal value of clicks
     real_values = []
-    pricing_arms = []
+    _pricing_arms = []
     for scenario in _pricing_scenarios:
         pricing_arm = scenario.get_optimal_arm()
-        pricing_arms.append(pricing_arm)
+        _pricing_arms.append(pricing_arm)
 
         real_value = scenario.round(pricing_arm)
         real_values.append(compute_pricing_reward(real_value))
@@ -43,11 +49,12 @@ def compute_ideal(_advertising_scenarios, _pricing_scenarios):
     for index, scenario in enumerate(_advertising_scenarios):
         result += (scenario.y[arms[index]] * real_values[index])
 
-    # print("\n",
-    #       "Ideal pricing solution: ", pricing_arms, "\n",
-    #       "Ideal advertising solution: ", arms, "\n",
-    #       "Ideal result: ", round(result, 2)
-    #       )
+    # Log information about ideal solution
+    logging.info("\n" +
+                 "Ideal pricing solution: " + str(_pricing_arms) + "\n" +
+                 "Ideal advertising solution: " + str(arms) + "\n" +
+                 "Ideal result: " + str(round(result, 2)) + "\n"
+                 )
 
     return arms, result
 
@@ -68,6 +75,7 @@ for e in range(0, number_of_experiments):
 
     print('\n')
     print('Starting experiment', e + 1)
+    logging.info("\n" + "Starting experiment " + str(e + 1))
 
     advertising_scenarios = [
         Scenario(daily_budgets=daily_budgets,
@@ -146,10 +154,11 @@ for e in range(0, number_of_experiments):
             pricing_learners[sub_index].update((pricing_arms_indices[sub_index]), pricing_reward)
 
         optimal_rewards_per_round[t] = optimal_result
-        # print("\n",
-        #       "[", t, "]Optimal advertising solution:", optimal_advertising_arms, "\n",
-        #       "\t Optimal pricing solution:", pricing_arms, "\n",
-        #       "\t with a result of: ", round(optimal_result, 2), "\n")
+
+        logging.info("[" + str(t) + "]" +
+                     " a:" + str(optimal_advertising_arms) +
+                     " p:" + str(pricing_arms) +
+                     " ->" + str(round(optimal_result, 2)))
 
     regret.append(ideal_result - optimal_rewards_per_round)
 
