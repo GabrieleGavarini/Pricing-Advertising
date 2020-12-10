@@ -1,8 +1,7 @@
 import numpy as np
-from matplotlib import pyplot as plt
 
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import Matern, WhiteKernel, RBF, ConstantKernel as C
+from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 
 
 class SW_GPTS_Learner:

@@ -1,6 +1,7 @@
 from Learner import *
 import numpy as np
 
+
 class TS_Learner(Learner):
 	
 	def __init__(self, n_arms):
@@ -8,8 +9,11 @@ class TS_Learner(Learner):
 		self.beta_parameters = np.ones((n_arms, 2))
 		
 	def pull_arm(self):
-		idx = np.argmax(np.random.beta(self.beta_parameters[:, 0], self.beta_parameters[:, 1]))
-		return idx
+		rand = np.random.beta(self.beta_parameters[:, 0], self.beta_parameters[:, 1])
+
+		index = np.argmax(rand)
+
+		return index
 		
 	def update(self, pulled_arm, reward):
 		self.t += 1
