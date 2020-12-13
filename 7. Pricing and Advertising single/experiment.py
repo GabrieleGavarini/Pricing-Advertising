@@ -153,7 +153,6 @@ for e in range(0, number_of_experiments):
         campaign_values = [a*b for a, b in zip(number_clicks, value_clicks)]
         optimal_advertising_arms = optimizer.optimize(campaign_values)
         # The optimal result obtainable at time t by allocating the optimal budget
-        # The optimal result obtainable at time t by allocating the optimal budget
         optimal_result = 0
 
         for sub_index in range(0, len(advertising_learners)):
