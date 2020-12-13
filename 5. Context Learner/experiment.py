@@ -1,4 +1,4 @@
-from PricingScenario import *
+from ExtendedPricingScenario import *
 from ContextLearner import *
 
 from matplotlib import pyplot as plt
@@ -6,16 +6,16 @@ from tqdm import tqdm
 import pandas as pd
 
 
-def compute_reward(extended_reward):
+def compute_reward(_extended_reward):
     n = 0
     d = 0
-    for r in extended_reward:
+    for r in _extended_reward:
         n += r[3]
         d += r[4]
     return n/d
 
 
-scenario = PricingScenario()
+scenario = ExtendedPricingScenario()
 scenario.plot_scenario_distribution()
 
 arms = scenario.arms
